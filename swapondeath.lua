@@ -3,6 +3,7 @@ local ADDON_NAME = "swapondeath"
 local motc_equipped = false
 local seal_equipped = false
 local re_equip_timer = 0
+local re_equip_count = 0
 
 -- Interface
 local frame = CreateFrame("Frame",nil,UIParent)
@@ -33,15 +34,22 @@ end
 frame:RegisterEvent("ADDON_LOADED")
 frame:RegisterEvent("UNIT_INVENTORY_CHANGED")
 frame:RegisterEvent("PLAYER_UNGHOST")
+frame:RegisterEvent("PLAYER_ALIVE")
+-- frame:RegisterEvent("PLAYER_DEAD")
 
 frame:SetScript("OnEvent", function()
+
+    -- DEFAULT_CHAT_FRAME:AddMessage("event: " .. tostring(event))
     if event == "ADDON_LOADED" and arg1 == ADDON_NAME then
         scan_equipped_items()
     end
     if event == 'UNIT_INVENTORY_CHANGED' then
         scan_equipped_items()
     end
-    if event == 'PLAYER_UNGHOST' then
+
+    if event == 'PLAYER_UNGHOST'
+    or (event == 'PLAYER_ALIVE' and not UnitIsDeadOrGhost("player"))
+    then
         scan_equipped_items()
         if re_equip_timer < GetTime() - 5 then
             re_equip_timer = GetTime()
